@@ -22,3 +22,33 @@ body {
   align-items: center;
   justify-content: center;
 }
+
+.pad {
+  height: 64px;
+  width: 64px;
+  border: 2px solid black;
+}
+
+.green {
+  background-color: green;
+  filter: brightness(70%);
+}
+
+.red {
+  background-color: red;
+  filter: brightness(70%);
+}
+
+.yellow {
+  background-color: yellow;
+  filter: brightness(70%);
+}
+
+.blue {
+  background-color: blue;
+  filter: brightness(70%);
+}
+
+.active {
+  filter: brightness(100%);
+}
