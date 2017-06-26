@@ -16,14 +16,10 @@ body {
   align-items: center;
 }
 
-.content {
-  flex: 1;
+.pad {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.pad {
   height: 64px;
   width: 64px;
   border: 2px solid black;
@@ -51,4 +47,10 @@ body {
 
 .active {
   filter: brightness(100%);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
