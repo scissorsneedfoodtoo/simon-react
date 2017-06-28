@@ -7,22 +7,18 @@ class Simon extends React.Component {
     super(props)
     this.state = {
       green: {
-        id: "green",
         status: "inactive",
         freq: 329.628,
       },
       red: {
-        id: "red",
         status: "inactive",
         freq: 220,
       },
       yellow: {
-        id: "yellow",
         status: "inactive",
         freq: 277.183,
       },
       blue: {
-        id: "blue",
         status: "inactive",
         freq: 164.814,
       },
@@ -33,22 +29,23 @@ class Simon extends React.Component {
       difficulty: 1,
       lengthOfSequence: 8,
       gameOn: false,
+      padDisplayLength: 420, // length of pad sound/light during playback in ms
+      turns: 0, // how many turns played, starting from 0 index
     }
     this.padPress = this.padPress.bind(this)
     this.setSequences = this.setSequences.bind(this)
   } // end constructor
 
-  padPress(padObj) {
+  padPress(padColor) {
     if (this.state.gameOn) {
-      const padKey = padObj.id // makes returning the object in setState much easier
+      const padObj = this.state[padColor]
       const padStatus = padObj.status
       const padFreq = padObj.freq
 
       // return the whole object with all key value pairs -- necessary to prevent errors with the playSound function
       return this.setState({
-        [padKey]: {
+        [padColor]: {
           status: padStatus  === "inactive" ? "active" : "inactive",
-          id: padObj.id,
           freq: padFreq
         }
       })
@@ -107,11 +104,12 @@ class Simon extends React.Component {
   toggleOnOff() {
     const gameOnState = this.state.gameOn
 
-    console.log(this.state.padSequence) // to check that padSequence is populated
+    // console.log(this.state.padSequence) // to check that padSequence is populated
 
     return this.setState({
       gameOn: gameOnState === false ? true : false,
       padSequence: [],
+      padDisplayLength: 420,
     })
   } // end toggleOnOff
 
@@ -131,26 +129,66 @@ class Simon extends React.Component {
     return this.setState({
       padSequence: tempSequence
     })
-
   }
+
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  playPadSequence() {
+    const playbackLength = this.state.padDisplayLength
+    const padSequence = this.state.padSequence
+    const playbackIndexes = padSequence.reduce((acc, color, index) => {
+      if (index <= this.state.turns) {
+        acc.push(index)
+      }
+      return acc
+    }, [])
+
+    playbackIndexes.forEach((index) => {
+      let padFreq = this.state[padSequence[index]].freq
+      // this.playSound(padFreq)
+      const sing = async () => {
+        // this.padPress(padSequence[index])
+        // console.log(padSequence[index])
+        console.log('1')
+        await this.sleep(playbackLength)
+        // this.padPress(padSequence[index])
+        // console.log(padSequence[index])
+        console.log('2')
+      }
+      sing()
+      // this.stopSound()
+    }) // end forEach
+
+  } // end playPadSequence
 
   componentWillUpdate(nextProps, nextState) {
     const gameWillTurnOn = nextState.gameOn
-    const newGame = this.state.padSequence // to only run populatePadSequence when the game is switched from off to on
+    const newGame = nextState.padSequence // to only run populatePadSequence when the game is switched from off to on
 
-    if (gameWillTurnOn && newGame.length === 0) {
+    if (gameWillTurnOn && newGame.length === 0) { // game on from off state
       this.populatePadSequence()
     }
   } // end componentWillUpdate
+
+  componentDidUpdate(prevProps, prevState) {
+    const gameTurnedOn = this.state.gameOn
+    const gameReady = this.state.padSequence // to only run populatePadSequence when the game is switched from off to on
+
+    if (gameTurnedOn && gameReady.length > 0) { // game on from off state
+      this.playPadSequence()
+    }
+  } // end componentDidUpdate
 
   render() {
     return (
       <div className="content">
         <div className="pads">
-          <div className={`pad green ${this.state.green.status}`} onMouseDown={() => {this.padPress(this.state.green); this.playSound(this.state.green.freq)}} onMouseUp={() => {this.padPress(this.state.green); this.stopSound()}}></div>
-          <div className={`pad red ${this.state.red.status}`} onMouseDown={() => {this.padPress(this.state.red); this.playSound(this.state.red.freq)}} onMouseUp={() => {this.padPress(this.state.red); this.stopSound()}}></div>
-          <div className={`pad yellow ${this.state.yellow.status}`} onMouseDown={() => {this.padPress(this.state.yellow); this.playSound(this.state.yellow.freq)}} onMouseUp={() => {this.padPress(this.state.yellow); this.stopSound()}}></div>
-          <div className={`pad blue ${this.state.blue.status}`} onMouseDown={() => {this.padPress(this.state.blue); this.playSound(this.state.blue.freq)}} onMouseUp={() => {this.padPress(this.state.blue); this.stopSound()}}></div>
+          <div className={`pad green ${this.state.green.status}`} onMouseDown={() => {this.padPress("green"); this.playSound(this.state.green.freq)}} onMouseUp={() => {this.padPress("green"); this.stopSound()}}></div>
+          <div className={`pad red ${this.state.red.status}`} onMouseDown={() => {this.padPress("red"); this.playSound(this.state.red.freq)}} onMouseUp={() => {this.padPress("red"); this.stopSound()}}></div>
+          <div className={`pad yellow ${this.state.yellow.status}`} onMouseDown={() => {this.padPress("yellow"); this.playSound(this.state.yellow.freq)}} onMouseUp={() => {this.padPress("yellow"); this.stopSound()}}></div>
+          <div className={`pad blue ${this.state.blue.status}`} onMouseDown={() => {this.padPress("blue"); this.playSound(this.state.blue.freq)}} onMouseUp={() => {this.padPress("blue"); this.stopSound()}}></div>
         </div>
         {/* end pads */}
         <div className="controls">
