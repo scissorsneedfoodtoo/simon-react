@@ -31,7 +31,7 @@ class Simon extends React.Component {
       padSequence: [],
       playerGuesses: [],
       difficulty: 1,
-      numOfSequences: 8,
+      lengthOfSequence: 8,
       gameOn: false,
     }
     this.padPress = this.padPress.bind(this)
@@ -39,45 +39,57 @@ class Simon extends React.Component {
   } // end constructor
 
   padPress(padObj) {
-    const padKey = padObj.id // makes returning the object in setState much easier
-    const padStatus = padObj.status
-    const padFreq = padObj.freq
+    if (this.state.gameOn) {
+      const padKey = padObj.id // makes returning the object in setState much easier
+      const padStatus = padObj.status
+      const padFreq = padObj.freq
 
-    // return the whole object with all key value pairs -- necessary to prevent errors with the playSound function
-    return this.setState({
-      [padKey]: {
-        status: padStatus  === "inactive" ? "active" : "inactive",
-        id: padObj.id,
-        freq: padFreq
-      }
-    })
+      // return the whole object with all key value pairs -- necessary to prevent errors with the playSound function
+      return this.setState({
+        [padKey]: {
+          status: padStatus  === "inactive" ? "active" : "inactive",
+          id: padObj.id,
+          freq: padFreq
+        }
+      })
+    } else {
+      return
+    }
   } // end padPress
 
   playSound(freq) {
-    let audioContext = this.state.audioContext
-    let oscillator = this.state.oscillator
+    if (this.state.gameOn) {
+      let audioContext = this.state.audioContext
+      let oscillator = this.state.oscillator
 
-    oscillator = audioContext.createOscillator()
-    oscillator.type = 'square'
-    oscillator.connect(audioContext.destination)
-    oscillator.frequency.value = freq
-    oscillator.start()
+      oscillator = audioContext.createOscillator()
+      oscillator.type = 'square'
+      oscillator.connect(audioContext.destination)
+      oscillator.frequency.value = freq
+      oscillator.start()
 
-    return this.setState({
-      oscillator: oscillator,
-    })
+      return this.setState({
+        oscillator: oscillator,
+      })
+    } else {
+      return
+    }
   } // end playSound
 
   stopSound() {
-    let audioContext = this.state.audioContext
-    let oscillator = this.state.oscillator
+    if (this.state.gameOn) {
+      let audioContext = this.state.audioContext
+      let oscillator = this.state.oscillator
 
-    oscillator.stop()
-    oscillator.disconnect(audioContext.destination);
+      oscillator.stop()
+      oscillator.disconnect(audioContext.destination);
 
-    return this.setState({
-      oscillator: null,
-    })
+      return this.setState({
+        oscillator: null,
+      })
+    } else {
+      return
+    }
   } // end stopSound
 
   setSequences(difficulty) {
@@ -95,22 +107,38 @@ class Simon extends React.Component {
   toggleOnOff() {
     const gameOnState = this.state.gameOn
 
+    console.log(this.state.padSequence) // to check that padSequence is populated
+
     return this.setState({
       gameOn: gameOnState === false ? true : false,
+      padSequence: [],
     })
   } // end toggleOnOff
 
-  // populatePadSequence() {
-  //   const numOfSequences = this.state.numOfSequences
-  //   const pads = this.state.pads
-  //
-  //
-  // }
+  populatePadSequence() {
+    const lengthOfSequence = this.state.lengthOfSequence
+    const pads = ["green", "red", "yellow", "blue"]
+    let tempSequence = []
+    let count = lengthOfSequence
+
+    while (count > 0) {
+      let randomIndex = Math.floor(Math.random() * (pads.length - 0)) + 0
+
+      tempSequence.push(pads[randomIndex])
+      count--
+    }
+
+    return this.setState({
+      padSequence: tempSequence
+    })
+
+  }
 
   componentWillUpdate(nextProps, nextState) {
     const gameWillTurnOn = nextState.gameOn
+    const newGame = this.state.padSequence // to only run populatePadSequence when the game is switched from off to on
 
-    if (gameWillTurnOn) {
+    if (gameWillTurnOn && newGame.length === 0) {
       this.populatePadSequence()
     }
   } // end componentWillUpdate
