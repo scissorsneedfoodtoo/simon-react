@@ -65,9 +65,10 @@ class Simon extends React.Component {
       oscillator.frequency.value = freq
       oscillator.start()
 
-      return this.setState({
+      return this.setState({ // works with setState, but might cause errors
         oscillator: oscillator,
       })
+      // this.state.oscillator = oscillator // not the preferred method, but works
     } else {
       return
     }
@@ -114,21 +115,24 @@ class Simon extends React.Component {
   } // end toggleOnOff
 
   populatePadSequence() {
-    const lengthOfSequence = this.state.lengthOfSequence
-    const pads = ["green", "red", "yellow", "blue"]
-    let tempSequence = []
-    let count = lengthOfSequence
+    const newGame = this.state.padSequence
+    if (newGame.length === 0) {
+      const lengthOfSequence = this.state.lengthOfSequence
+      const pads = ["green", "red", "yellow", "blue"]
+      let tempSequence = []
+      let count = lengthOfSequence
 
-    while (count > 0) {
-      let randomIndex = Math.floor(Math.random() * (pads.length - 0)) + 0
+      while (count > 0) {
+        let randomIndex = Math.floor(Math.random() * (pads.length - 0)) + 0
 
-      tempSequence.push(pads[randomIndex])
-      count--
+        tempSequence.push(pads[randomIndex])
+        count--
+      }
+
+      return this.setState({
+        padSequence: tempSequence
+      })
     }
-
-    return this.setState({
-      padSequence: tempSequence
-    })
   }
 
   sleep(ms) {
@@ -145,38 +149,41 @@ class Simon extends React.Component {
       return acc
     }, [])
 
-    playbackIndexes.forEach((index) => {
-      let padFreq = this.state[padSequence[index]].freq
-      // this.playSound(padFreq)
-      const sing = async () => {
-        // this.padPress(padSequence[index])
-        // console.log(padSequence[index])
-        console.log('1')
+    const sing = async () => {
+      for (let i = 0; i < playbackIndexes.length; i++) {
+        const padFreq = this.state[padSequence[i]].freq
+        console.log(padFreq)
+        this.playSound(padFreq)
+        this.padPress(padSequence[i])
         await this.sleep(playbackLength)
-        // this.padPress(padSequence[index])
-        // console.log(padSequence[index])
-        console.log('2')
-      }
-      sing()
-      // this.stopSound()
-    }) // end forEach
+        this.padPress(padSequence[i])
+        this.stopSound()
+        await this.sleep(playbackLength)
+      } // end for loop
+    } // end sing
+
+    sing()
 
   } // end playPadSequence
 
-  componentWillUpdate(nextProps, nextState) {
-    const gameWillTurnOn = nextState.gameOn
-    const newGame = nextState.padSequence // to only run populatePadSequence when the game is switched from off to on
-
-    if (gameWillTurnOn && newGame.length === 0) { // game on from off state
-      this.populatePadSequence()
-    }
-  } // end componentWillUpdate
+  // componentWillUpdate(nextProps, nextState) {
+  //   const gameWillTurnOn = nextState.gameOn
+  //   const newGame = nextState.padSequence // to only run populatePadSequence when the game is switched from off to on
+  //
+  //   if (gameWillTurnOn && newGame.length === 0) { // game on from off state
+  //     // this.populatePadSequence()
+  //   }
+  //
+  // } // end componentWillUpdate
 
   componentDidUpdate(prevProps, prevState) {
     const gameTurnedOn = this.state.gameOn
     const gameReady = this.state.padSequence // to only run populatePadSequence when the game is switched from off to on
+    const lastPadSequence = prevState.padSequence // should be empty arr to use as check below
+    const thisPadSequence = this.state.padSequence
 
-    if (gameTurnedOn && gameReady.length > 0) { // game on from off state
+    if (gameTurnedOn && gameReady.length > 0 && lastPadSequence !== thisPadSequence) { // game on from off state
+      // console.log(this.state)
       this.playPadSequence()
     }
   } // end componentDidUpdate
@@ -192,7 +199,7 @@ class Simon extends React.Component {
         </div>
         {/* end pads */}
         <div className="controls">
-          <button type="button" value="start" className="start-button" onClick={() => this.toggleOnOff()}>Start</button>
+          <button type="button" value="start" className="start-button" onClick={() => {this.toggleOnOff(); this.populatePadSequence()}}>Start</button>
         </div>
         {/* end controls */}
       </div> // end content
