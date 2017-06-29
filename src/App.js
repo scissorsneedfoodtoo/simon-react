@@ -29,8 +29,9 @@ class Simon extends React.Component {
       difficulty: 1,
       lengthOfSequence: 8,
       gameOn: false,
-      padDisplayLength: 420, // length of pad sound/light during playback in ms
-      turns: 0, // how many turns played, starting from 0 index
+      padDisplayLength: 420, // length of pad sound/light during playback in ms, originally 420
+      turns: 3, // how many turns played, starting from 0 index
+      disabled: false,
     }
     this.padPress = this.padPress.bind(this)
     this.setSequences = this.setSequences.bind(this)
@@ -67,6 +68,7 @@ class Simon extends React.Component {
 
       return this.setState({ // works with setState, but might cause errors
         oscillator: oscillator,
+        // disabled: true,
       })
       // this.state.oscillator = oscillator // not the preferred method, but works
     } else {
@@ -84,6 +86,7 @@ class Simon extends React.Component {
 
       return this.setState({
         oscillator: null,
+        // disabled: false,
       })
     } else {
       return
@@ -106,6 +109,8 @@ class Simon extends React.Component {
     const gameOnState = this.state.gameOn
 
     // console.log(this.state.padSequence) // to check that padSequence is populated
+    // this.stopSound()
+    // this.pause(0)
 
     return this.setState({
       gameOn: gameOnState === false ? true : false,
@@ -133,14 +138,35 @@ class Simon extends React.Component {
         padSequence: tempSequence
       })
     }
-  }
+  } // end populatePadSequence
 
-  sleep(ms) {
+  // speedUp(nextTurn) {
+  //   console.log(nextTurn)
+  // }
+
+  pause(ms) { // original -- now messing with a cancelablePause
     return new Promise(resolve => setTimeout(resolve, ms));
-  }
+  } // end pause
+
+  // to prevent player from pressing start button while playPadSequence is running, causing errors
+  disableButtonsToggle() {
+    return this.setState({
+      disabled: this.state.disabled === false ? true : false
+    })
+  } // end disableButtonsToggle
+
+  // to prevent player from pressing pads while playPadSequence is running, causing errors
+  disablePadsToggle(status) {
+    console.log(status)
+    if (status) { // if this.state.disabled is true
+      return "disabled"
+    } else {
+      return "enabled"
+    }
+  } // end disablePadsToggle
 
   playPadSequence() {
-    const playbackLength = this.state.padDisplayLength
+    const padDisplayLength = this.state.padDisplayLength
     const padSequence = this.state.padSequence
     const playbackIndexes = padSequence.reduce((acc, color, index) => {
       if (index <= this.state.turns) {
@@ -155,26 +181,30 @@ class Simon extends React.Component {
         console.log(padFreq)
         this.playSound(padFreq)
         this.padPress(padSequence[i])
-        await this.sleep(playbackLength)
+        await this.pause(padDisplayLength)
         this.padPress(padSequence[i])
         this.stopSound()
-        await this.sleep(playbackLength)
+        await this.pause(padDisplayLength)
       } // end for loop
+      this.disableButtonsToggle()
     } // end sing
 
-    sing()
+    // prevent start button from being pressed during sequence
 
+    sing()
+    this.disableButtonsToggle()
   } // end playPadSequence
 
-  // componentWillUpdate(nextProps, nextState) {
-  //   const gameWillTurnOn = nextState.gameOn
-  //   const newGame = nextState.padSequence // to only run populatePadSequence when the game is switched from off to on
-  //
-  //   if (gameWillTurnOn && newGame.length === 0) { // game on from off state
-  //     // this.populatePadSequence()
-  //   }
-  //
-  // } // end componentWillUpdate
+
+
+  componentWillUpdate(nextProps, nextState) {
+    // const nextTurn = nextState.turns
+
+    // if () { // game on from off state
+    //   // this.populatePadSequence()
+    // }
+
+  } // end componentWillUpdate
 
   componentDidUpdate(prevProps, prevState) {
     const gameTurnedOn = this.state.gameOn
@@ -192,14 +222,14 @@ class Simon extends React.Component {
     return (
       <div className="content">
         <div className="pads">
-          <div className={`pad green ${this.state.green.status}`} onMouseDown={() => {this.padPress("green"); this.playSound(this.state.green.freq)}} onMouseUp={() => {this.padPress("green"); this.stopSound()}}></div>
-          <div className={`pad red ${this.state.red.status}`} onMouseDown={() => {this.padPress("red"); this.playSound(this.state.red.freq)}} onMouseUp={() => {this.padPress("red"); this.stopSound()}}></div>
-          <div className={`pad yellow ${this.state.yellow.status}`} onMouseDown={() => {this.padPress("yellow"); this.playSound(this.state.yellow.freq)}} onMouseUp={() => {this.padPress("yellow"); this.stopSound()}}></div>
-          <div className={`pad blue ${this.state.blue.status}`} onMouseDown={() => {this.padPress("blue"); this.playSound(this.state.blue.freq)}} onMouseUp={() => {this.padPress("blue"); this.stopSound()}}></div>
+          <div className={`pad green ${this.state.green.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.padPress("green"); this.playSound(this.state.green.freq)}} onMouseUp={() => {this.padPress("green"); this.stopSound()}}></div>
+          <div className={`pad red ${this.state.red.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.padPress("red"); this.playSound(this.state.red.freq)}} onMouseUp={() => {this.padPress("red"); this.stopSound()}}></div>
+          <div className={`pad yellow ${this.state.yellow.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.padPress("yellow"); this.playSound(this.state.yellow.freq)}} onMouseUp={() => {this.padPress("yellow"); this.stopSound()}}></div>
+          <div className={`pad blue ${this.state.blue.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.padPress("blue"); this.playSound(this.state.blue.freq)}} onMouseUp={() => {this.padPress("blue"); this.stopSound()}}></div>
         </div>
         {/* end pads */}
         <div className="controls">
-          <button type="button" value="start" className="start-button" onClick={() => {this.toggleOnOff(); this.populatePadSequence()}}>Start</button>
+          <button type="button" value="start" className="start-button" onClick={() => {this.toggleOnOff(); this.populatePadSequence()}} disabled={this.state.disabled}>Start</button>
         </div>
         {/* end controls */}
       </div> // end content

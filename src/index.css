@@ -54,3 +54,11 @@ body {
   align-items: center;
   justify-content: center;
 }
+
+.disabled {
+  pointer-events: none;
+}
+
+.enabled {
+  pointer-events: auto;
+}
