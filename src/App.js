@@ -32,7 +32,7 @@ class Simon extends React.Component {
       lengthOfSequence: 8,
       gameOn: false,
       padDisplayLength: 420, // length of pad sound/light during playback in ms, originally 420
-      round: 0, // how many rounds played, starting from 0 index
+      round: 3, // how many rounds played, starting from 0 index
       disabled: false,
     }
     this.togglePad = this.togglePad.bind(this)
@@ -124,7 +124,7 @@ class Simon extends React.Component {
       playerGuesses: [],
       padDisplayLength: 420,
       checkIndex: 0,
-      round: 0,
+      round: 3,
     })
   } // end toggleOnOff
 
@@ -149,9 +149,17 @@ class Simon extends React.Component {
     }
   } // end populatePadSequence
 
-  // speedUp(nextTurn) {
-  //   console.log(nextTurn)
-  // }
+  speedUp(nextTurn) {
+    if (nextTurn === 5) {
+      return this.setState({
+        padDisplayLength: 320,
+      })
+    } else if (nextTurn === 13) {
+      return this.setState({
+        padDisplayLength: 220,
+      })
+    }
+  }
 
   pause(ms) { // original -- now messing with a cancelablePause
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -204,67 +212,28 @@ class Simon extends React.Component {
     // this.disableButtonsToggle()
   } // end playPadSequence
 
-  // handlePlayerGuesses(guessedColor) { // working except for razz
-  //   const colorObj = this.state[guessedColor]
-  //   const correctSequence = this.state.padSequence
-  //   let playerGuesses = this.state.playerGuesses // needed to lift the state up in this case to prevent the array from being written over each time this function is called
-  //   let checkIndex = this.state.checkIndex
-  //   let currentRound = this.state.round
-  //
-  //   playerGuesses.push(guessedColor)
-  //
-  //   this.stopSound()
-  //
-  //   //NEED TO FIGURE OUT END GAME CONDITIONS USING lengthOfSequence
-  //   // if guess matches the sequence played and is the end of the sequence / round -- needs to be first so we can handle state appropriately
-  //   if (playerGuesses[checkIndex] === correctSequence[checkIndex] && checkIndex === currentRound) {
-  //     console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
-  //     // this.playSound(colorObj.freq)
-  //     this.setState({
-  //       checkIndex: 0,
-  //       round: currentRound += 1,
-  //       playerGuesses: [],
-  //     })
-  //   } else if (playerGuesses[checkIndex] === correctSequence[checkIndex]) { // if guess matches the sequence played, but not the end of the sequence played
-  //     console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
-  //     // this.playSound(colorObj.freq)
-  //     this.setState({
-  //       checkIndex: checkIndex += 1,
-  //     })
-  //   } else if (playerGuesses[checkIndex] !== correctSequence[checkIndex]) {
-  //     console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
-  //     this.playRazzSound(guessedColor)
-  //     // this.playPadSequence()
-  //     this.setState({
-  //       checkIndex: 0,
-  //       playerGuesses: [],
-  //     })
-  //   }
-  // } // end handlePlayerGuesses
-
   handlePlayerGuesses(guessedColor) {
     const colorObj = this.state[guessedColor]
     const correctSequence = this.state.padSequence
     // let playerGuesses = this.state.playerGuesses // needed to lift the state up in this case to prevent the array from being written over each time this function is called
-    let tempPlayerGuesses = this.state.playerGuesses
+    let playerGuesses = this.state.playerGuesses
     let checkIndex = this.state.checkIndex
     let currentRound = this.state.round
 
-    tempPlayerGuesses.push(guessedColor)
+    playerGuesses.push(guessedColor)
 
-    //NEED TO FIGURE OUT END GAME CONDITIONS USING lengthOfSequence
     // if guess matches the sequence played and is the end of the sequence / round -- needs to be first so we can handle state appropriately
-    if (tempPlayerGuesses[checkIndex] === correctSequence[checkIndex] && checkIndex === currentRound) {
-      //console.log(correctSequence, correctSequence[checkIndex], tempPlayerGuesses, tempPlayerGuesses[checkIndex], checkIndex, currentRound)
-      this.playSound(colorObj.freq)
-    } else if (tempPlayerGuesses[checkIndex] === correctSequence[checkIndex]) { // if guess matches the sequence played, but not the end of the sequence played
-      //console.log(correctSequence, correctSequence[checkIndex], tempPlayerGuesses, tempPlayerGuesses[checkIndex], checkIndex, currentRound)
-      this.playSound(colorObj.freq)
-    } else if (tempPlayerGuesses[checkIndex] !== correctSequence[checkIndex]) { // only return state if player presses the wrong pad
-      //console.log(correctSequence, correctSequence[checkIndex], tempPlayerGuesses, tempPlayerGuesses[checkIndex], checkIndex, currentRound)
+    if (playerGuesses[checkIndex] === correctSequence[checkIndex] && checkIndex === currentRound) {
+      //console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
+      return this.playSound(colorObj.freq)
+    } else if (playerGuesses[checkIndex] === correctSequence[checkIndex]) { // if guess matches the sequence played, but not the end of the sequence played
+      //console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
+      return this.playSound(colorObj.freq)
+    } else if (playerGuesses[checkIndex] !== correctSequence[checkIndex]) { // only return state if player presses the wrong pad
+      //console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
       this.playRazzSound(guessedColor)
       // this.playPadSequence()
-      this.setState({
+      return this.setState({
         checkIndex: 0,
         playerGuesses: [],
       })
@@ -272,23 +241,22 @@ class Simon extends React.Component {
   } // end handlePlayerGuesses
 
   passOrFail(guessedColor) {
-    const colorObj = this.state[guessedColor]
     const correctSequence = this.state.padSequence
     let playerGuesses = this.state.playerGuesses // needed to lift the state up in this case to prevent the array from being written over each time this function is called
     let checkIndex = this.state.checkIndex
     let currentRound = this.state.round
 
-    //NEED TO FIGURE OUT END GAME CONDITIONS USING lengthOfSequence
+    // NEED TO FIGURE OUT END GAME CONDITIONS USING lengthOfSequence
     // if guess matches the sequence played and is the end of the sequence / round -- needs to be first so we can handle state appropriately
     if (playerGuesses[checkIndex] === correctSequence[checkIndex] && checkIndex === currentRound) {
-      console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
+      // console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
       this.setState({
         checkIndex: 0,
         round: currentRound += 1,
         playerGuesses: [],
       })
     } else if (playerGuesses[checkIndex] === correctSequence[checkIndex]) { // if guess matches the sequence played, but not the end of the sequence played
-      console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
+      // console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
       this.setState({
         checkIndex: checkIndex += 1,
       })
@@ -312,14 +280,18 @@ class Simon extends React.Component {
     return razzSound()
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    // const nextTurn = nextState.turn
-
-    // if () { // game on from off state
-    //   // this.populatePadSequence()
-    // }
-
-  } // end componentWillUpdate
+  // componentWillUpdate(nextProps, nextState) {
+  //   const gameStarted = this.state.padSequence
+  //   const nextRound = nextState.round
+  //
+  //   if (gameStarted.length > 0) {
+  //     console.log(nextRound)
+  //     if (nextRound >= 5) {
+  //       return this.speedUp(nextRound)
+  //     }
+  //   }
+  //
+  // } // end componentWillUpdate
 
   componentDidUpdate(prevProps, prevState) {
     const gameTurnedOn = this.state.gameOn
@@ -327,13 +299,17 @@ class Simon extends React.Component {
     const lastPadSequence = prevState.padSequence // should be empty arr to use as check below
     const lastRound = prevState.round
     const newSequencePause = 800
-    // const thisPadSequence = this.state.padSequence
-    // console.log(lastPadSequence, thisPadSequence)
+    const nextRound = this.state.round + 1 // for calculating padDisplayLength
+    const error = this.state.error
+
+    // NEED TO FIGURE OUT HOW TO END GAME -- maybe here or in the handlePlayerGuesses function
 
     if (gameTurnedOn && gameStarted.length > 0 && lastPadSequence.length === 0) { // game on from off state so this only runs once
       return this.playPadSequence()
-    } else if (gameTurnedOn && gameStarted.length > 0 && lastPadSequence.length > 0 && this.state.round > lastRound) {
+    } else if (gameTurnedOn && gameStarted.length > 0 && lastPadSequence.length > 0 && this.state.round > lastRound) { // there was no error last round
       // console.log('this state: ', this.state, 'prevState: ', prevState)
+
+      this.speedUp(nextRound)
 
       const playNewSequence = async () => {
         await this.pause(newSequencePause)
@@ -343,11 +319,6 @@ class Simon extends React.Component {
       return playNewSequence()
     }
   } // end componentDidUpdate
-
-  // <div className={`pad green ${this.state.green.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("green"); this.playSound(this.state.green.freq)}} onMouseUp={() => {this.handlePlayerGuesses("green"); this.togglePad("green")}}></div>
-  // <div className={`pad red ${this.state.red.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("red"); this.playSound(this.state.red.freq)}} onMouseUp={() => {this.handlePlayerGuesses("red"); this.togglePad("red")}}></div>
-  // <div className={`pad yellow ${this.state.yellow.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("yellow"); this.playSound(this.state.yellow.freq)}} onMouseUp={() => {this.handlePlayerGuesses("yellow"); this.togglePad("yellow")}}></div>
-  // <div className={`pad blue ${this.state.blue.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("blue"); this.playSound(this.state.blue.freq)}} onMouseUp={() => {this.handlePlayerGuesses("blue"); this.togglePad("blue")}}></div>
 
   render() {
     return (
