@@ -27,6 +27,7 @@ class Simon extends React.Component {
       oscillator: null,
       padSequence: [],
       playerGuesses: [],
+      longestSequence: [],
       checkIndex: 0,
       skillLevel: 1,
       lengthOfSequence: 8, // 8
@@ -132,7 +133,8 @@ class Simon extends React.Component {
     }
   } // end setSequences
 
-  toggleOnOff() {
+  toggleOnOff(event) {
+    // const switchPosition = event.target.value
     const gameOnState = this.state.gameOn
 
     this.stopRazzTimer() // stop timer if currently active
@@ -142,6 +144,7 @@ class Simon extends React.Component {
       gameOn: gameOnState === false ? true : false,
       padSequence: [],
       playerGuesses: [],
+      longestSequence: [], // reset when turned off
       padDisplayLength: 420,
       checkIndex: 0,
       round: 0,
@@ -154,7 +157,7 @@ class Simon extends React.Component {
     })
   } // end toggleOnOff
 
-  populatePadSequence() {
+  populatePadSequence() { // rename / rework so this is more of a start/restart game -- need to reset some elements
     const newGame = this.state.padSequence
     if (newGame.length === 0) {
       const lengthOfSequence = this.state.lengthOfSequence
@@ -299,33 +302,62 @@ class Simon extends React.Component {
     let currentRound = this.state.round
     const gameOn = this.state.gameOn
     const gameOver = this.state.gameOver
+    const longestSequence = this.state.longestSequence
 
     if (gameOn && !gameOver) {
       console.log(guessedColor)
       // if guess matches the sequence played and is the end of the sequence / round -- needs to be first so we can handle state appropriately
       if (playerGuesses[checkIndex] === correctSequence[checkIndex] && checkIndex === currentRound && gameOn && !gameOver) {
         // console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
-
-        this.setState({
-          checkIndex: 0,
-          round: currentRound += 1,
-          playerGuesses: [],
-          lastPadPressUTC: Date.now(),
-          // timer: currentUTC + 3000,
-        })
+        if (playerGuesses.length > longestSequence.length) { // check for longest sequence for last button here
+          this.setState({
+            checkIndex: 0,
+            round: currentRound += 1,
+            playerGuesses: [],
+            lastPadPressUTC: Date.now(),
+            longestSequence: playerGuesses,
+          })
+        } else {
+          this.setState({
+            checkIndex: 0,
+            round: currentRound += 1,
+            playerGuesses: [],
+            lastPadPressUTC: Date.now(),
+          })
+        }
       } else if (playerGuesses[checkIndex] === correctSequence[checkIndex] && gameOn && !gameOver) { // if guess matches the sequence played, but not the end of the sequence played
         // console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
-        this.startRazzTimer()
-        return this.setState({
-          checkIndex: checkIndex += 1,
-          lastPadPressUTC: Date.now(),
-          // timer: currentUTC + 3000,
-        })
+        if (playerGuesses.length > longestSequence.length) { // check for longest sequence for last button here
+          this.startRazzTimer()
+          return this.setState({
+            checkIndex: checkIndex += 1,
+            lastPadPressUTC: Date.now(),
+            longestSequence: playerGuesses,
+          })
+        } else {
+          this.startRazzTimer()
+          return this.setState({
+            checkIndex: checkIndex += 1,
+            lastPadPressUTC: Date.now(),
+          })
+        }
       }
     } else {
       return
     }
   } // end passOrFail
+
+  playLongestSequence(longestSequence) {
+    const gameOn = this.state.gameOn
+    const gameStarted = this.state.padSequence
+
+    // if game turned on but not started
+    if (gameOn && gameStarted.length === 0) {
+      return this.playPadSequence(longestSequence)
+    } else {
+      return
+    }
+  } // end playLongestSequence
 
   errorSetState() {
     return this.setState({
@@ -422,7 +454,8 @@ class Simon extends React.Component {
     if (gameEndCond === this.state.lengthOfSequence && !gameOver) { // player wins the game
       this.stopRazzTimer() // stop the timer so there is no razz sound after winning
       console.log('player win')
-      return this.toggleOnOff()
+      // return this.toggleOnOff() // original, before on/off toggle switch
+      return
     } else if (!prevState.error && error && !gameOver) { // not strict mode and pad press error
 
       const repeatSequence = async () => {
@@ -435,7 +468,8 @@ class Simon extends React.Component {
       return repeatSequence()
     } else if (!prevState.gameOver && gameOver) { // not strict mode, and made two pad press errors, ending the game
       console.log('game over')
-      return this.toggleOnOff()
+      // return this.toggleOnOff() // original, before on/off toggle switch
+      return
     } else if (gameTurnedOn && gameStarted.length > 0 && lastPadSequence.length === 0) { // game on from off state so this only runs once
       // return this.playPadSequence() // original
       return this.playPadSequence(this.state.padSequence)
@@ -476,13 +510,16 @@ class Simon extends React.Component {
         </div>
         {/* end pads */}
         <div className="controls">
-          <button type="button" value="start" className="start-button" onClick={() => {this.toggleOnOff(); this.populatePadSequence()}} disabled={this.state.disabled}>Start</button>
+          <button type="button" value="last" className="last-button">Last</button>
+          <button type="button" value="start" className="start-button" onClick={() => this.populatePadSequence()} disabled={this.state.disabled}>Start</button>
+          <button type="button" value="Longest" className="longest-button" onClick={() => this.playLongestSequence(this.state.longestSequence)}>Longest</button>
+          <input type="range" list="tickmarks" min="0" max="1" step="1" defaultValue="0" onChange={(event) => this.toggleOnOff(event)}></input>
           <input type="range" list="tickmarks" min="1" max="4" step="1" defaultValue="1" onChange={(event) => this.setLengthOfSequence(event)}></input>
           <datalist id="tickmarks">
-            <option value="1"></option>
-            <option value="2"></option>
-            <option value="3"></option>
-            <option value="4"></option>
+            <option value="1" label="1"></option>
+            <option value="2" label="2"></option>
+            <option value="3" label="3"></option>
+            <option value="4" label="4"></option>
           </datalist>
         </div>
         {/* end controls */}
