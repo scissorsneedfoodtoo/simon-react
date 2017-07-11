@@ -28,6 +28,7 @@ class Simon extends React.Component {
       padSequence: [],
       playerGuesses: [],
       longestSequence: [],
+      lastPadSequence: [],
       checkIndex: 0,
       skillLevel: 1,
       lengthOfSequence: 8, // 8
@@ -138,9 +139,26 @@ class Simon extends React.Component {
     const gameOnState = this.state.gameOn
 
     this.stopRazzTimer() // stop timer if currently active
+    this.stopSound() // stop sound if currently on
     // console.log(this.state)
 
     return this.setState({
+      green: { // return pad objects so they are all back to their disabled state
+        status: "inactive",
+        freq: 329.628,
+      },
+      red: {
+        status: "inactive",
+        freq: 220,
+      },
+      yellow: {
+        status: "inactive",
+        freq: 277.183,
+      },
+      blue: {
+        status: "inactive",
+        freq: 164.814,
+      },
       gameOn: gameOnState === false ? true : false,
       padSequence: [],
       playerGuesses: [],
@@ -153,32 +171,87 @@ class Simon extends React.Component {
       lastPadPressUTC: 0,
       timer: 0,
       timeUp: false,
-      // skillLevel: this.state.skillLevel,
     })
   } // end toggleOnOff
 
-  populatePadSequence() { // rename / rework so this is more of a start/restart game -- need to reset some elements
-    const newGame = this.state.padSequence
-    if (newGame.length === 0) {
-      const lengthOfSequence = this.state.lengthOfSequence
-      const pads = ["green", "red", "yellow", "blue"]
-      let tempSequence = []
-      let count = lengthOfSequence
+  startNewGame(padSequence) { // rename / rework so this is more of a start/restart game -- need to reset some elements
+    // const newGame = padSequence
+    // if (newGame.length === 0) {
+    //   const lengthOfSequence = this.state.lengthOfSequence
+    //   const pads = ["green", "red", "yellow", "blue"]
+    //   let tempSequence = []
+    //   let count = lengthOfSequence
+    //
+    //   while (count > 0) {
+    //     let randomIndex = Math.floor(Math.random() * (pads.length - 0)) + 0
+    //     tempSequence.push(pads[randomIndex])
+    //     count--
+    //   }
+    //
+    //   console.log(tempSequence)
+    //
+    //   return this.setState({
+    //     padSequence: tempSequence
+    //   })
+    // } else if (newGame.length > 0) {
+    //
+    // }
+    // const newGame = padSequence
+    const gameOn = this.state.gameOn
+    const lengthOfSequence = this.state.lengthOfSequence
+    const lastSequence = this.state.padSequence // empty arr if starting from off state, otherwise caches the current pad sequence before another is generated
+    const pads = ["green", "red", "yellow", "blue"]
+    let newSequence = []
+    let count = lengthOfSequence
+
+    if (gameOn) {
 
       while (count > 0) {
         let randomIndex = Math.floor(Math.random() * (pads.length - 0)) + 0
-
-        tempSequence.push(pads[randomIndex])
+        console.log(randomIndex)
+        newSequence.push(pads[randomIndex])
         count--
       }
 
-      console.log(tempSequence)
+      console.log(lastSequence, newSequence)
+
+      // this.stopSound() // in case game currently active
+      this.stopRazzTimer()
 
       return this.setState({
-        padSequence: tempSequence
+        green: { // return pads to inactive state
+          status: "inactive",
+          freq: 329.628,
+        },
+        red: {
+          status: "inactive",
+          freq: 220,
+        },
+        yellow: {
+          status: "inactive",
+          freq: 277.183,
+        },
+        blue: {
+          status: "inactive",
+          freq: 164.814,
+        },
+        playerGuesses: [],
+        padSequence: newSequence,
+        lastPadSequence: lastSequence,
+        checkIndex: 0,
+        padDisplayLength: 420, // length of pad sound/light during playback in ms, originally 420
+        round: 0, // how many rounds played, starting from 0 index
+        disabled: false,
+        error: false,
+        gameOver: false,
+        lastPadPressUTC: 0,
+        timer: 0,
+        timeUp: false,
       })
+    } else {
+      return
     }
-  } // end populatePadSequence
+  } // end startNewGame
 
   speedUp(nextTurn) {
     if (nextTurn === 5) {
@@ -241,11 +314,8 @@ class Simon extends React.Component {
 
       return this.setState({
         lastPadPressUTC: Date.now(),
-        // timer: currentUTC + 3000,
       })
     } // end sing
-
-    // prevent start button from being pressed during sequence
 
     return sing() // original
   } // end playPadSequence
@@ -428,7 +498,7 @@ class Simon extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const gameTurnedOn = this.state.gameOn
     const gameStarted = this.state.padSequence // to only run populatePadSequence when the game is switched from off to on
-    const lastPadSequence = prevState.padSequence // should be empty arr to use as check below
+    const prevPadSequence = prevState.padSequence // should be empty arr to use as check below
     const lastRound = prevState.round
     const newSequencePause = 800
     const nextRound = this.state.round + 1 // for calculating padDisplayLength
@@ -449,7 +519,8 @@ class Simon extends React.Component {
 
     let timer = this.checkRazzTimer()
 
-    console.log(this.state.lastPadPressUTC, this.state.timer)
+    // console.log(this.state.lastPadPressUTC, this.state.timer)
+    // console.log(this.state, prevState)
 
     if (gameEndCond === this.state.lengthOfSequence && !gameOver) { // player wins the game
       this.stopRazzTimer() // stop the timer so there is no razz sound after winning
@@ -470,10 +541,13 @@ class Simon extends React.Component {
       console.log('game over')
       // return this.toggleOnOff() // original, before on/off toggle switch
       return
-    } else if (gameTurnedOn && gameStarted.length > 0 && lastPadSequence.length === 0) { // game on from off state so this only runs once
+    } else if (gameTurnedOn && gameStarted.length > 0 && prevPadSequence.length === 0) { // game on from off state so this only runs once
       // return this.playPadSequence() // original
       return this.playPadSequence(this.state.padSequence)
-    } else if (gameTurnedOn && gameStarted.length > 0 && lastPadSequence.length > 0 && this.state.round > lastRound) { // there was no error last round
+    } else if (gameTurnedOn && gameStarted.length > 0 && this.state.lastPadPressUTC === 0 && prevState.lastPadPressUTC > 0) { // testing start button pressed, restarting game
+      // console.log('working restart')
+      return this.playPadSequence(this.state.padSequence)
+    } else if (gameTurnedOn && gameStarted.length > 0 && prevPadSequence.length > 0 && this.state.round > lastRound) { // there was no error last round
       // console.log('this state: ', this.state, 'prevState: ', prevState)
 
       this.speedUp(nextRound)
@@ -486,7 +560,7 @@ class Simon extends React.Component {
 
       return playNewSequence()
     } else if (timer && !prevState.timeUp && this.state.timeUp && this.state.round === lastRound && !prevState.error && !this.state.error) { // first timeUp error
-
+      console.log('timeup error')
       return timeUpRazz("error")
 
     } else if (timer && !prevState.timeUp && this.state.timeUp && this.state.round === lastRound && this.state.error) { // second timeUp error -- game over
@@ -510,11 +584,11 @@ class Simon extends React.Component {
         </div>
         {/* end pads */}
         <div className="controls">
-          <button type="button" value="last" className="last-button">Last</button>
-          <button type="button" value="start" className="start-button" onClick={() => this.populatePadSequence()} disabled={this.state.disabled}>Start</button>
-          <button type="button" value="Longest" className="longest-button" onClick={() => this.playLongestSequence(this.state.longestSequence)}>Longest</button>
-          <input type="range" list="tickmarks" min="0" max="1" step="1" defaultValue="0" onChange={(event) => this.toggleOnOff(event)}></input>
-          <input type="range" list="tickmarks" min="1" max="4" step="1" defaultValue="1" onChange={(event) => this.setLengthOfSequence(event)}></input>
+          <button type="button" value="last" className="last-button" disabled={this.state.disabled}>Last</button>
+          <button type="button" value="start" className="start-button" onClick={() => this.startNewGame(this.state.padSequence)} disabled={this.state.disabled}>Start</button>
+          <button type="button" value="Longest" className="longest-button" onClick={() => this.playLongestSequence(this.state.longestSequence)} disabled={this.state.disabled}>Longest</button>
+          <input type="range" list="tickmarks" min="0" max="1" step="1" defaultValue="0" onChange={(event) => this.toggleOnOff(event)} disabled={this.state.disabled}></input>
+          <input type="range" list="tickmarks" min="1" max="4" step="1" defaultValue="1" onChange={(event) => this.setLengthOfSequence(event)} disabled={this.state.disabled}></input>
           <datalist id="tickmarks">
             <option value="1" label="1"></option>
             <option value="2" label="2"></option>
