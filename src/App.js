@@ -30,7 +30,7 @@ class Simon extends React.Component {
       longestSequence: [],
       lastPadSequence: [],
       checkIndex: 0,
-      skillLevel: 1,
+      skillLevel: "1", // slider target.value returns string
       lengthOfSequence: 8, // 8
       gameOn: false,
       padDisplayLength: 420, // length of pad sound/light during playback in ms, originally 420
@@ -109,34 +109,30 @@ class Simon extends React.Component {
     }
   } // end stopSound
 
-  setLengthOfSequence(event) {
+  setLengthOfSequence(event) { // CHANGE THIS SO IT IS DISABLED DURING THE ENTIRE GAME!
     const sliderValue = event.target.value
-    const gameStarted = this.state.round > 0 // different than other gameStarted variables because player might win a game and be unable to change the difficulty because padSequence > 0
-    if (!gameStarted) {
-      if (sliderValue === "1") {
-        return this.setState({
-          lengthOfSequence: 8,
-          skillLevel: sliderValue,
-        })
-      } else if (sliderValue === "2") {
-        return this.setState({
-          lengthOfSequence: 14,
-          skillLevel: sliderValue,
-        })
-      } else if (sliderValue === "3") {
-        return this.setState({
-          lengthOfSequence: 20,
-          skillLevel: sliderValue,
-        })
-      } else if (sliderValue === "4") {
-        return this.setState({
-          lengthOfSequence: 31,
-          skillLevel: sliderValue,
-        })
-      }
-    } else {
-      return
-    } // end gameStarted if/else
+
+    if (sliderValue === "1") {
+      return this.setState({
+        lengthOfSequence: 8,
+        skillLevel: sliderValue,
+      })
+    } else if (sliderValue === "2") {
+      return this.setState({
+        lengthOfSequence: 14,
+        skillLevel: sliderValue,
+      })
+    } else if (sliderValue === "3") {
+      return this.setState({
+        lengthOfSequence: 20,
+        skillLevel: sliderValue,
+      })
+    } else if (sliderValue === "4") {
+      return this.setState({
+        lengthOfSequence: 31,
+        skillLevel: sliderValue,
+      })
+    }
   } // end setSequences
 
   toggleOnOff(event) {
@@ -499,7 +495,7 @@ class Simon extends React.Component {
     const lastRound = prevState.round
     const newSequencePause = 800
     const nextRound = this.state.round + 1 // for calculating padDisplayLength
-    const gameEndCond = this.state.round // would actually be 1 greater than the actual round length due to base 0 counting, but still works when compared to lengthOfSequence
+    const thisRound = this.state.round // would actually be 1 greater than the actual round length due to base 0 counting, but still works when compared to lengthOfSequence
     const error = this.state.error
     const gameOver = this.state.gameOver
 
@@ -519,7 +515,7 @@ class Simon extends React.Component {
     // console.log(this.state.lastPadPressUTC, this.state.timer)
     // console.log(this.state, prevState)
 
-    if (gameEndCond === this.state.lengthOfSequence && !gameOver) { // player wins the game
+    if (thisRound > 0 && thisRound === this.state.padSequence.length && !gameOver) { // player wins the game
       this.stopRazzTimer() // stop the timer so there is no razz sound after winning
       console.log('player win')
       return this.gameOverState()
@@ -558,10 +554,11 @@ class Simon extends React.Component {
       return playNewSequence()
     } else if (timer && !prevState.timeUp && this.state.timeUp && this.state.round === lastRound && !prevState.error && !this.state.error) { // first timeUp error
       console.log('timeup error')
+      this.stopSound() // in case player presses a pad just at the deadline
       return timeUpRazz("error")
 
     } else if (timer && !prevState.timeUp && this.state.timeUp && this.state.round === lastRound && this.state.error) { // second timeUp error -- game over
-
+      this.stopSound() // in case player presses a pad just at the deadline
       return timeUpRazz("gameOver")
     } else if (timer && !this.state.timeUp && !gameOver) {
       return this.setState({
