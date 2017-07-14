@@ -42,6 +42,7 @@ class Simon extends React.Component {
       timer: 0,
       timeUp: false,
       win: false,
+      strict: false,
     }
     this.togglePad = this.togglePad.bind(this)
     // this.setSequences = this.setSequences.bind(this)
@@ -136,14 +137,27 @@ class Simon extends React.Component {
     }
   } // end setSequences
 
-  toggleOnOff(event) {
-    // const switchPosition = event.target.value
-    const gameOnState = this.state.gameOn
+  toggleOnOffStrict(event) {
+    const switchPosition = event.target.value
+    let gameOnState
+    let strictState
+
+    if (switchPosition === "0") {
+      gameOnState = false
+      strictState = false
+    } else if (switchPosition === "1") {
+      gameOnState = true
+      strictState = false
+    } else if (switchPosition === "2") {
+      gameOnState = true
+      strictState = true
+    }
 
     this.stopRazzTimer() // stop timer if currently active
     this.stopSound() // stop sound if currently on
     // console.log(this.state)
 
+    // effectively restarts game if going from on to strict mode
     return this.setState({
       green: { // return pad objects so they are all back to their disabled state
         status: "inactive",
@@ -161,7 +175,8 @@ class Simon extends React.Component {
         status: "inactive",
         freq: 164.814,
       },
-      gameOn: gameOnState === false ? true : false,
+      // gameOn: gameOnState === false ? true : false, // original
+      gameOn: gameOnState,
       padSequence: [],
       playerGuesses: [],
       longestSequence: [], // reset when turned off
@@ -175,8 +190,9 @@ class Simon extends React.Component {
       timer: 0,
       timeUp: false,
       win: false,
+      strict: strictState,
     })
-  } // end toggleOnOff
+  } // end toggleOnOffStrict
 
   startNewGame(padSequence) { // rename / rework so this is more of a start/restart game -- need to reset some elements
     const gameOn = this.state.gameOn
@@ -612,7 +628,7 @@ class Simon extends React.Component {
           <button type="button" value="last" className="last-button" onClick={() => this.startLastSequence(this.state.lastPadSequence)} disabled={this.state.disabled}>Last</button>
           <button type="button" value="start" className="start-button" onClick={() => this.startNewGame(this.state.padSequence)} disabled={this.state.disabled}>Start</button>
           <button type="button" value="Longest" className="longest-button" onClick={() => this.playLongestSequence(this.state.longestSequence)} disabled={this.state.disabled}>Longest</button>
-          <input type="range" list="tickmarks" min="0" max="1" step="1" defaultValue="0" onChange={(event) => this.toggleOnOff(event)} disabled={this.state.disabled}></input>
+          <input type="range" list="tickmarks" min="0" max="2" step="1" defaultValue="0" onChange={(event) => this.toggleOnOffStrict(event)} disabled={this.state.disabled}></input>
           <input type="range" list="tickmarks" min="1" max="4" step="1" defaultValue="1" onChange={(event) => this.setLengthOfSequence(event)} disabled={this.state.disabled}></input>
           <datalist id="tickmarks">
             <option value="1" label="1"></option>
