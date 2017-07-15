@@ -339,7 +339,19 @@ class Simon extends React.Component {
     const error = this.state.error
     const gameOn = this.state.gameOn
     const gameStarted = this.state.padSequence.length > 0
+    const strict = this.state.strict
     const gameOver = this.state.gameOver
+
+    const errorRazz = async () => {
+      await this.playRazzSound(guessedColor)
+      this.disableButtonsToggle() // disable buttons before setting error state
+      return this.errorSetState()
+    }
+
+    const gameOverRazz = async () => {
+      await this.playRazzSound(guessedColor)
+      return this.gameOverState()
+    }
 
     this.stopRazzTimer() // stop timer when player presses a pad, right or wrong
 
@@ -353,20 +365,14 @@ class Simon extends React.Component {
       } else if (playerGuesses[checkIndex] === correctSequence[checkIndex]) { // if guess matches the sequence played, but not the end of the sequence played
         //console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
         return this.playSound(colorObj.freq)
-      } else if (playerGuesses[checkIndex] !== correctSequence[checkIndex] && !error) { // only return state if player presses the wrong pad AND NOT STRICT MODE!!!!
+      } else if (playerGuesses[checkIndex] !== correctSequence[checkIndex] && !error) { // only return state here if player presses the wrong pad
         //console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
-        const errorReplay = async () => {
-          await this.playRazzSound(guessedColor)
-          this.disableButtonsToggle() // disable buttons before setting error state
-          return this.errorSetState()
+        if (strict) { // if strict mode, end game
+          return gameOverRazz()
+        } else { // otherwise return error
+          return errorRazz()
         }
-
-        return errorReplay()
-      } else if (playerGuesses[checkIndex] !== correctSequence[checkIndex] && error) {
-        const gameOverRazz = async () => {
-          await this.playRazzSound(guessedColor)
-          return this.gameOverState()
-        }
+      } else if (playerGuesses[checkIndex] !== correctSequence[checkIndex] && error) { // if not strict mode and player presses the wrong pad a second time and there is already an error, ending the game
 
         return gameOverRazz()
       }
@@ -537,6 +543,7 @@ class Simon extends React.Component {
     const newSequencePause = 800
     const nextRound = this.state.round + 1 // for calculating padDisplayLength
     const thisRound = this.state.round // would actually be 1 greater than the actual round length due to base 0 counting, but still works when compared to lengthOfSequence
+    const strict = this.state.strict
     const error = this.state.error
     const gameOver = this.state.gameOver
 
@@ -562,7 +569,7 @@ class Simon extends React.Component {
 
       return this.gameOverState("win")
       // return
-    } else if (!prevState.gameOver && gameOver && !prevState.win && this.state.win) { // plays victory tune
+    } else if (!prevState.gameOver && gameOver && !prevState.win && this.state.win) { // after player win setState, plays victory tune
       const playVictoryTune = async () => {
         await this.pause(newSequencePause)
         this.disableButtonsToggle()
@@ -570,7 +577,7 @@ class Simon extends React.Component {
       }
 
       return playVictoryTune()
-    } else if (!prevState.error && error && !gameOver) { // not strict mode and pad press error
+    } else if (!prevState.error && error && !gameOver) { // first pad press error general check
 
       const repeatSequence = async () => {
         await this.pause(newSequencePause)
@@ -579,16 +586,16 @@ class Simon extends React.Component {
       }
 
       return repeatSequence()
-    } else if (!prevState.gameOver && gameOver) { // not strict mode, and made two pad press errors, ending the game
+    } else if (!prevState.gameOver && gameOver) { // game over
       console.log('game over')
-      // return this.toggleOnOff() // original, before on/off toggle switch
+
       return
     } else if (gameTurnedOn && gameStarted.length > 0 && prevPadSequence.length === 0) { // game on from off state so this only runs once
       return this.playPadSequence(thisPadSequence, padDisplayLength)
-    } else if (gameTurnedOn && gameStarted.length > 0 && this.state.lastPadPressUTC === 0 && prevState.lastPadPressUTC > 0) { // testing start button pressed, restarting game
+    } else if (gameTurnedOn && gameStarted.length > 0 && this.state.lastPadPressUTC === 0 && prevState.lastPadPressUTC > 0) { // start button pressed, restarting game
       // console.log('working restart')
       return this.playPadSequence(thisPadSequence, padDisplayLength)
-    } else if (gameTurnedOn && gameStarted.length > 0 && prevPadSequence.length > 0 && this.state.round > lastRound) { // there was no error last round
+    } else if (gameTurnedOn && gameStarted.length > 0 && prevPadSequence.length > 0 && this.state.round > lastRound) { // player successfully completes round
       // console.log('this state: ', this.state, 'prevState: ', prevState)
 
       this.speedUp(nextRound)
@@ -602,12 +609,17 @@ class Simon extends React.Component {
     } else if (timer && !prevState.timeUp && this.state.timeUp && this.state.round === lastRound && !prevState.error && !this.state.error) { // first timeUp error
       console.log('timeup error')
       this.stopSound() // in case player presses a pad just at the deadline
-      return timeUpRazz("error")
+
+      if (strict) { // end game if strict mode
+        return timeUpRazz("gameOver")
+      } else {
+        return timeUpRazz("error")
+      }
 
     } else if (timer && !prevState.timeUp && this.state.timeUp && this.state.round === lastRound && this.state.error) { // second timeUp error -- game over
       this.stopSound() // in case player presses a pad just at the deadline
       return timeUpRazz("gameOver")
-    } else if (timer && !this.state.timeUp && !gameOver) {
+    } else if (timer && !this.state.timeUp && !gameOver) { // check if time has expired
       return this.setState({
         timeUp: true,
       })
