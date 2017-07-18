@@ -629,13 +629,17 @@ class Simon extends React.Component {
   render() {
     return (
       <div className="content">
+      <div className="app">
+      <div className="pads-background">
         <div className="pads">
           <div className={`pad green ${this.state.green.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("green"); this.handlePlayerGuesses("green")}} onMouseUp={() => {this.togglePad("green"); this.stopSound(); this.passOrFail("green")}}></div>
           <div className={`pad red ${this.state.red.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("red"); this.handlePlayerGuesses("red")}} onMouseUp={() => {this.togglePad("red"); this.stopSound(); this.passOrFail("red")}}></div>
           <div className={`pad yellow ${this.state.yellow.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("yellow"); this.handlePlayerGuesses("yellow")}} onMouseUp={() => {this.togglePad("yellow"); this.stopSound(); this.passOrFail("yellow")}}></div>
           <div className={`pad blue ${this.state.blue.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("blue"); this.handlePlayerGuesses("blue")}} onMouseUp={() => {this.togglePad("blue"); this.stopSound(); this.passOrFail("blue")}}></div>
+          <div className="center"></div>
         </div>
         {/* end pads */}
+        </div>
         <div className="controls">
           <button type="button" value="last" className="last-button" onClick={() => this.startLastSequence(this.state.lastPadSequence)} disabled={this.state.disabled}>Last</button>
           <button type="button" value="start" className="start-button" onClick={() => this.startNewGame(this.state.padSequence)} disabled={this.state.disabled}>Start</button>
@@ -650,6 +654,8 @@ class Simon extends React.Component {
           </datalist>
         </div>
         {/* end controls */}
+        </div>
+        {/* end app */}
       </div> // end content
     ); // end return
   } // end render

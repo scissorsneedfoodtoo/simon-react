@@ -16,33 +16,63 @@ body {
   align-items: center;
 }
 
-.pad {
+.app {
+  max-width: 90%;
+  max-height: 95%;
+}
+
+.pads {
   display: flex;
-  align-items: center;
   justify-content: center;
-  height: 64px;
-  width: 64px;
-  border: 2px solid black;
+  align-content: center;
+  flex-wrap: wrap;
+  margin: auto;
+  width: 300px;
+  height: 300px;
+  background-color: black;
+  border-radius: 50%;
+  position: relative;
+}
+
+.center {
+  background-color: white;
+  height: 100px;
+  width: 100px;
+  border-radius: 50%;
+  position: absolute;
+  /*top: 55%;*/
+  top: 33.5%;
+  box-shadow: 0 0 0 15px black;
+}
+
+.pad {
+  margin: 7.5px;
+  height: 125px;
+  width: 125px;
 }
 
 .green {
   background-color: green;
   filter: brightness(70%);
+  border-radius: 5000px 20px 20px;
 }
 
 .red {
   background-color: red;
   filter: brightness(70%);
+  border-radius: 20px 5000px 20px 20px;
 }
 
 .yellow {
   background-color: yellow;
   filter: brightness(70%);
+  border-radius: 20px 20px 20px 5000px;
 }
 
 .blue {
   background-color: blue;
   filter: brightness(70%);
+  border-radius: 20px 20px 5000px 20px;
 }
 
 .active {
