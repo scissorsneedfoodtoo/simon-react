@@ -664,6 +664,27 @@ class Simon extends React.Component {
                   </datalist>
                 </div>
                 {/* end toggle-switches */}
+                <div className="switch-value-labels">
+                  <div className="on-off-strict-label">
+                    <p>Off</p>
+                    <p>On</p>
+                    <p>Strict</p>
+                  </div>
+                  {/* end on-off-strict-label */}
+                  <div className="skill-level-label">
+                    <p>1</p>
+                    <p>2</p>
+                    <p>3</p>
+                    <p>4</p>
+                  </div>
+                  {/* end skill-level-label */}
+                </div>
+                {/* end switch-value-labels */}
+                <div className="switch-type-labels">
+                  <p className="game-type-label">Game</p>
+                  <p className="skill-type-label">Skill Level</p>
+                </div>
+                {/* end switch-type-labels */}
               </div>
               {/* end controls */}
             </div>
