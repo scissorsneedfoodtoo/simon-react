@@ -648,9 +648,9 @@ class Simon extends React.Component {
                 </div>
                 {/* end button-row */}
                 <div className="button-labels">
-                  <p className="last-label">Last</p>
-                  <p className="start-label">Start</p>
-                  <p className="longest-label">Longest</p>
+                  <p className="last-label">LAST</p>
+                  <p className="start-label">START</p>
+                  <p className="longest-label">LONGEST</p>
                 </div>
                 {/* end button-row */}
                 <div className="toggle-switches">
@@ -666,9 +666,9 @@ class Simon extends React.Component {
                 {/* end toggle-switches */}
                 <div className="switch-value-labels">
                   <div className="on-off-strict-label">
-                    <p>Off</p>
-                    <p>On</p>
-                    <p>Strict</p>
+                    <p>OFF</p>
+                    <p>ON</p>
+                    <p>STRICT</p>
                   </div>
                   {/* end on-off-strict-label */}
                   <div className="skill-level-label">
@@ -681,12 +681,16 @@ class Simon extends React.Component {
                 </div>
                 {/* end switch-value-labels */}
                 <div className="switch-type-labels">
-                  <p className="game-type-label">Game</p>
-                  <p className="skill-type-label">Skill Level</p>
+                  <p className="game-type-label">GAME</p>
+                  <p className="skill-type-label">SKILL LEVEL</p>
                 </div>
                 {/* end switch-type-labels */}
               </div>
               {/* end controls */}
+              <div className="game-name">
+                <h1 className="pocket-title">POCKET</h1>
+                <h1 className="simon-title">SIMON</h1>
+              </div>
             </div>
             {/* end controls-silver-background */}
           </div>
