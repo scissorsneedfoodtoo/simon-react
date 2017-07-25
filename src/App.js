@@ -213,7 +213,7 @@ class Simon extends React.Component {
 
       console.log(lastSequence, newSequence)
 
-      // this.stopSound() // in case game currently active
+      this.stopSound() // in case user clicks / touches and the game currently active
       this.stopRazzTimer()
 
       return this.setState({
@@ -239,10 +239,13 @@ class Simon extends React.Component {
   startLastSequence(lastPadSequence) {
     const gameOn = this.state.gameOn
     const gameOver = this.state.gameOver
+    const gameActive = this.state.padSequence.length > 0
 
     console.log('working lastSequence', lastPadSequence)
 
-    if (gameOn && gameOver) {
+    if (gameOn && gameOver && !gameActive) {
+      this.stopRazzTimer() // stop timer in case it's running
+
       return this.setState({
         playerGuesses: [],
         padSequence: lastPadSequence,
@@ -255,6 +258,7 @@ class Simon extends React.Component {
         lastPadPressUTC: 0,
         timer: 0,
         timeUp: false,
+        win: false, // reset this so that the victory tune plays again
       })
     }
 
@@ -276,7 +280,7 @@ class Simon extends React.Component {
     return new Promise(resolve => setTimeout(resolve, ms));
   } // end pause
 
-  // to prevent player from pressing start button while playPadSequence is running, causing errors
+  // // to prevent player from pressing start button while playPadSequence is running, causing errors
   disableButtonsToggle() {
     return this.setState({
       disabled: this.state.disabled === false ? true : false
@@ -343,16 +347,19 @@ class Simon extends React.Component {
     const gameOver = this.state.gameOver
 
     const errorRazz = async () => {
+      // this.disableButtonsToggle() // disable buttons before setting error state
       await this.playRazzSound(guessedColor)
-      this.disableButtonsToggle() // disable buttons before setting error state
+      this.disableButtonsToggle()
       return this.errorSetState()
     }
 
     const gameOverRazz = async () => {
+      //this.disableButtonsToggle() // disable buttons before setting error state
       await this.playRazzSound(guessedColor)
       return this.gameOverState()
     }
 
+    this.disableButtonsToggle() // disable buttons at the top of the function
     this.stopRazzTimer() // stop timer when player presses a pad, right or wrong
 
     if (gameOn && !gameOver && gameStarted) {
@@ -390,6 +397,8 @@ class Simon extends React.Component {
     const gameStarted = this.state.padSequence.length > 0
     const gameOver = this.state.gameOver
     const longestSequence = this.state.longestSequence
+
+    this.disableButtonsToggle()
 
     if (gameOn && !gameOver && gameStarted) {
       console.log(guessedColor)
@@ -439,6 +448,8 @@ class Simon extends React.Component {
     const gameOver = this.state.gameOver
     const padDisplayLength = this.state.padDisplayLength
 
+    this.stopRazzTimer() // just in case it's running
+
     // if game turned on but not started
     if (gameOn && gameOver && longestSequence.length > 0) {
       return this.playPadSequence(longestSequence, padDisplayLength)
@@ -465,6 +476,7 @@ class Simon extends React.Component {
         gameOver: true,
         timer: 0,
         lastPadSequence: padSequence,
+        padSequence: [],
         win: true,
       })
     } else {
@@ -472,6 +484,8 @@ class Simon extends React.Component {
         gameOver: true,
         timer: 0,
         lastPadSequence: padSequence, // if player wins first game from since switching on device, sets the lastPadSequence as the one just played/won in the event that the player wins and then presses the last button to play the first generated sequence again
+        padSequence: [],
+        win: false,
       })
     }
 
@@ -565,15 +579,17 @@ class Simon extends React.Component {
 
     if (thisRound > 0 && thisRound === this.state.padSequence.length && !gameOver) { // player wins the game
       this.stopRazzTimer() // stop the timer so there is no razz sound after winning
+      this.disableButtonsToggle() // disable buttons at start of win sequence
       console.log('player win')
 
       return this.gameOverState("win")
       // return
     } else if (!prevState.gameOver && gameOver && !prevState.win && this.state.win) { // after player win setState, plays victory tune
+
       const playVictoryTune = async () => {
         await this.pause(newSequencePause)
-        this.disableButtonsToggle()
-        return this.victoryTune()
+        this.victoryTune()
+        return this.disableButtonsToggle() // renable buttons here
       }
 
       return playVictoryTune()
@@ -626,15 +642,85 @@ class Simon extends React.Component {
     }
   } // end componentDidUpdate
 
+  // touchHandler(event) {
+  //   const color = event.target.id
+  //
+  //   console.log('touchHandler')
+  //
+  //   if (event.type === 'touchstart' && !this.state.oscillator) {
+  //     return this.handleTouchStart(color)
+  //   } else if (event.type === 'touchend' && !this.state.oscillator) {
+  //     return this.handleTouchEnd(color)
+  //   }
+  // }
+  //
+  // mouseHandler(event) {
+  //   const color = event.target.id
+  //
+  //   console.log('mouseHandler')
+  //
+  //   if (event.type === 'mousedown' && !this.state.oscillator) {
+  //     return this.handleMouseDown(color)
+  //   } else if (event.type === 'mouseup' && !this.state.oscillator) {
+  //     return this.handleMouseUp(color)
+  //   }
+  // }
+  //
+  // handleMouseDown(color) {
+  //   // console.log('handleMouseDown working',color)
+  //   this.togglePad(color)
+  //   return this.handlePlayerGuesses(color)
+  // }
+  //
+  // handleMouseUp(color) {
+  //   // console.log('handleMouseUp working', color)
+  //   this.stopSound()
+  //   this.togglePad(color)
+  //   return this.passOrFail(color)
+  // }
+
+  handleTouchStart(event) {
+    console.log(this.state.padDisplayLength)
+    const gameStarted = this.state.padSequence.length > 0
+
+    if (gameStarted && !this.state.oscillator) { // check if oscillator is !null to prevent multiple presses
+      const color = event.target.id
+
+      this.togglePad(color)
+      return this.handlePlayerGuesses(color)
+    }
+  } // end handleTouchStart
+
+  handleTouchEnd(event) {
+    const color = event.target.id
+    // console.log(this.state[color])
+    const gameStarted = this.state.padSequence.length > 0
+    const onePadActive = this.state[color].status === "active"
+
+    if (gameStarted && this.state.oscillator && onePadActive) { // check for oscillator to prevent errors with razzPlayingFreq due to null value in this.state
+      const currentFreq = this.state.oscillator.frequency.value
+
+      // console.log(this.state.oscillator.frequency.value)
+
+      if (currentFreq !== 42) { // if not playing razz sound
+        this.stopSound()
+        this.togglePad(color)
+        return this.passOrFail(color)
+      } else {
+        return
+      }
+    } // end if oscillator check
+  } // end handleTouchEnd
+
   render() {
     return (
       <div className="content">
         <div className="app">
           <div className="pads">
-            <div className={`pad red ${this.state.red.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("red"); this.handlePlayerGuesses("red")}} onMouseUp={() => {this.togglePad("red"); this.stopSound(); this.passOrFail("red")}}></div>
-            <div className={`pad blue ${this.state.blue.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("blue"); this.handlePlayerGuesses("blue")}} onMouseUp={() => {this.togglePad("blue"); this.stopSound(); this.passOrFail("blue")}}></div>
-            <div className={`pad green ${this.state.green.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("green"); this.handlePlayerGuesses("green")}} onMouseUp={() => {this.togglePad("green"); this.stopSound(); this.passOrFail("green")}}></div>
-            <div className={`pad yellow ${this.state.yellow.status} ${this.disablePadsToggle(this.state.disabled)}`} onMouseDown={() => {this.togglePad("yellow"); this.handlePlayerGuesses("yellow")}} onMouseUp={() => {this.togglePad("yellow"); this.stopSound(); this.passOrFail("yellow")}}></div>
+            <div className={`pad red ${this.state.red.status} ${this.disablePadsToggle(this.state.disabled)}`} id="red" onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
+            <div className={`pad blue ${this.state.blue.status} ${this.disablePadsToggle(this.state.disabled)}`} id="blue" onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
+            <div className={`pad green ${this.state.green.status} ${this.disablePadsToggle(this.state.disabled)}`} id="green" onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
+            <div className={`pad yellow ${this.state.yellow.status} ${this.disablePadsToggle(this.state.disabled)}`} id="yellow" onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
             <div className="center"></div>
           </div>
           {/* end pads */}
@@ -642,9 +728,9 @@ class Simon extends React.Component {
             <div className="controls-silver-background">
               <div className="controls">
                 <div className="button-row">
-                  <div className="last-button button" onClick={() => this.startLastSequence(this.state.lastPadSequence)} disabled={this.state.disabled}></div>
-                  <div className="start-button button" onClick={() => this.startNewGame(this.state.padSequence)} disabled={this.state.disabled}></div>
-                  <div className="longest-button button" onClick={() => this.playLongestSequence(this.state.longestSequence)} disabled={this.state.disabled}></div>
+                  <div className={`last-button button ${this.disablePadsToggle(this.state.disabled)}`} onClick={() => this.startLastSequence(this.state.lastPadSequence)} disabled={this.state.disabled}></div>
+                  <div className={`start-button button ${this.disablePadsToggle(this.state.disabled)}`} onClick={() => this.startNewGame(this.state.padSequence)} disabled={this.state.disabled}></div>
+                  <div className={`longest-button button ${this.disablePadsToggle(this.state.disabled)}`} onClick={() => this.playLongestSequence(this.state.longestSequence)} disabled={this.state.disabled}></div>
                 </div>
                 {/* end button-row */}
                 <div className="button-labels">
@@ -654,8 +740,8 @@ class Simon extends React.Component {
                 </div>
                 {/* end button-row */}
                 <div className="toggle-switches">
-                  <input type="range" className="toggle-on-off-strict" list="tickmarks" min="0" max="2" step="1" defaultValue="0" onChange={(event) => this.toggleOnOffStrict(event)} disabled={this.state.disabled}></input>
-                  <input type="range" className="toggle-skill-level" list="tickmarks" min="1" max="4" step="1" defaultValue="1" onChange={(event) => this.setLengthOfSequence(event)} disabled={this.state.disabled}></input>
+                  <input type="range" className={`toggle-on-off-strict ${this.disablePadsToggle(this.state.disabled)}`} list="tickmarks" min="0" max="2" step="1" defaultValue="0" onChange={(event) => this.toggleOnOffStrict(event)} disabled={this.state.disabled}></input>
+                  <input type="range" className={`toggle-skill-level ${this.disablePadsToggle(this.state.disabled)}`} list="tickmarks" min="1" max="4" step="1" defaultValue="1" onChange={(event) => this.setLengthOfSequence(event)} disabled={this.state.disabled}></input>
                   <datalist id="tickmarks">
                     <option value="1" label="1"></option>
                     <option value="2" label="2"></option>
