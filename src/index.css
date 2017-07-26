@@ -54,6 +54,7 @@ h1 {
   border-radius: 50%;
   position: relative;
   z-index: 1;
+  touch-action: manipulation; /* should prevent errors in console */
 }
 
 .center {

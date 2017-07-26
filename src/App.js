@@ -334,114 +334,109 @@ class Simon extends React.Component {
   } // end playPadSequence
 
   handlePlayerGuesses(guessedColor) {
-    const colorObj = this.state[guessedColor]
-    const correctSequence = this.state.padSequence
-    // let playerGuesses = this.state.playerGuesses // needed to lift the state up in this case to prevent the array from being written over each time this function is called
-    let playerGuesses = this.state.playerGuesses
-    let checkIndex = this.state.checkIndex
-    let currentRound = this.state.round
-    const error = this.state.error
-    const gameOn = this.state.gameOn
-    const gameStarted = this.state.padSequence.length > 0
-    const strict = this.state.strict
-    const gameOver = this.state.gameOver
+     const colorObj = this.state[guessedColor]
+     const correctSequence = this.state.padSequence
+     // let playerGuesses = this.state.playerGuesses // needed to lift the state up in this case to prevent the array from being written over each time this function is called
+     let playerGuesses = this.state.playerGuesses
+     let checkIndex = this.state.checkIndex
+     let currentRound = this.state.round
+     const error = this.state.error
+     const gameOn = this.state.gameOn
+     const gameStarted = this.state.padSequence.length > 0
+     const strict = this.state.strict
+     const gameOver = this.state.gameOver
 
-    const errorRazz = async () => {
-      // this.disableButtonsToggle() // disable buttons before setting error state
-      await this.playRazzSound(guessedColor)
-      this.disableButtonsToggle()
-      return this.errorSetState()
-    }
+     const errorRazz = async () => {
+       await this.playRazzSound(guessedColor)
+       this.disableButtonsToggle() // disable buttons before setting error state
+       return this.errorSetState()
+     }
 
-    const gameOverRazz = async () => {
-      //this.disableButtonsToggle() // disable buttons before setting error state
-      await this.playRazzSound(guessedColor)
-      return this.gameOverState()
-    }
+     const gameOverRazz = async () => {
+       await this.playRazzSound(guessedColor)
+       return this.gameOverState()
+     }
 
-    this.disableButtonsToggle() // disable buttons at the top of the function
-    this.stopRazzTimer() // stop timer when player presses a pad, right or wrong
+     this.stopRazzTimer() // stop timer when player presses a pad, right or wrong
 
-    if (gameOn && !gameOver && gameStarted) {
-      playerGuesses.push(guessedColor)
+     if (gameOn && !gameOver && gameStarted) {
+       playerGuesses.push(guessedColor)
 
-      // if guess matches the sequence played and is the end of the sequence / round -- needs to be first so we can handle state appropriately
-      if (playerGuesses[checkIndex] === correctSequence[checkIndex] && checkIndex === currentRound) {
-        //console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
-        return this.playSound(colorObj.freq)
-      } else if (playerGuesses[checkIndex] === correctSequence[checkIndex]) { // if guess matches the sequence played, but not the end of the sequence played
-        //console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
-        return this.playSound(colorObj.freq)
-      } else if (playerGuesses[checkIndex] !== correctSequence[checkIndex] && !error) { // only return state here if player presses the wrong pad
-        //console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
-        if (strict) { // if strict mode, end game
-          return gameOverRazz()
-        } else { // otherwise return error
-          return errorRazz()
-        }
-      } else if (playerGuesses[checkIndex] !== correctSequence[checkIndex] && error) { // if not strict mode and player presses the wrong pad a second time and there is already an error, ending the game
+       // if guess matches the sequence played and is the end of the sequence / round -- needs to be first so we can handle state appropriately
+       if (playerGuesses[checkIndex] === correctSequence[checkIndex] && checkIndex === currentRound) {
+         //console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
+         return this.playSound(colorObj.freq)
+       } else if (playerGuesses[checkIndex] === correctSequence[checkIndex]) { // if guess matches the sequence played, but not the end of the sequence played
+         //console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
+         return this.playSound(colorObj.freq)
+       } else if (playerGuesses[checkIndex] !== correctSequence[checkIndex] && !error) { // only return state here if player presses the wrong pad
+         //console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
+         if (strict) { // if strict mode, end game
+           return gameOverRazz()
+         } else { // otherwise return error
+           return errorRazz()
+         }
+       } else if (playerGuesses[checkIndex] !== correctSequence[checkIndex] && error) { // if not strict mode and player presses the wrong pad a second time and there is already an error, ending the game
 
-        return gameOverRazz()
-      }
-    } else {
-      return
-    } // end if else gameOn gameOver check
-  } // end handlePlayerGuesses
+         return gameOverRazz()
+       }
+     } else {
+       return
+     } // end if else gameOn gameOver check
+   } // end handlePlayerGuesses
 
-  passOrFail(guessedColor) {
-    const correctSequence = this.state.padSequence
-    let playerGuesses = this.state.playerGuesses // needed to lift the state up in this case to prevent the array from being written over each time this function is called
-    let checkIndex = this.state.checkIndex
-    let currentRound = this.state.round
-    const gameOn = this.state.gameOn
-    const gameStarted = this.state.padSequence.length > 0
-    const gameOver = this.state.gameOver
-    const longestSequence = this.state.longestSequence
+   passOrFail(guessedColor) {
+     const correctSequence = this.state.padSequence
+     let playerGuesses = this.state.playerGuesses // needed to lift the state up in this case to prevent the array from being written over each time this function is called
+     let checkIndex = this.state.checkIndex
+     let currentRound = this.state.round
+     const gameOn = this.state.gameOn
+     const gameStarted = this.state.padSequence.length > 0
+     const gameOver = this.state.gameOver
+     const longestSequence = this.state.longestSequence
 
-    this.disableButtonsToggle()
-
-    if (gameOn && !gameOver && gameStarted) {
-      console.log(guessedColor)
-      // if guess matches the sequence played and is the end of the sequence / round -- needs to be first so we can handle state appropriately
-      if (playerGuesses[checkIndex] === correctSequence[checkIndex] && checkIndex === currentRound) {
-        // console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
-        if (playerGuesses.length > longestSequence.length) { // check for longest sequence for last pad pressed here
-          this.setState({
-            checkIndex: 0,
-            round: currentRound += 1,
-            playerGuesses: [],
-            lastPadPressUTC: Date.now(),
-            longestSequence: playerGuesses,
-          })
-        } else {
-          this.setState({
-            checkIndex: 0,
-            round: currentRound += 1,
-            playerGuesses: [],
-            lastPadPressUTC: Date.now(),
-          })
-        }
-      } else if (playerGuesses[checkIndex] === correctSequence[checkIndex]) { // if guess matches the sequence played, but not the end of the sequence played
-        // console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
-        if (playerGuesses.length > longestSequence.length) { // check for longest sequence for last button here
-          this.startRazzTimer()
-          return this.setState({
-            checkIndex: checkIndex += 1,
-            lastPadPressUTC: Date.now(),
-            longestSequence: playerGuesses,
-          })
-        } else {
-          this.startRazzTimer()
-          return this.setState({
-            checkIndex: checkIndex += 1,
-            lastPadPressUTC: Date.now(),
-          })
-        }
-      }
-    } else { // end gameOn && !gameOver if/else
-      return
-    }
-  } // end passOrFail
+     if (gameOn && !gameOver && gameStarted) {
+       console.log(guessedColor)
+       // if guess matches the sequence played and is the end of the sequence / round -- needs to be first so we can handle state appropriately
+       if (playerGuesses[checkIndex] === correctSequence[checkIndex] && checkIndex === currentRound) {
+         // console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
+         if (playerGuesses.length > longestSequence.length) { // check for longest sequence for last pad pressed here
+           this.setState({
+             checkIndex: 0,
+             round: currentRound += 1,
+             playerGuesses: [],
+             lastPadPressUTC: Date.now(),
+             longestSequence: playerGuesses,
+           })
+         } else {
+           this.setState({
+             checkIndex: 0,
+             round: currentRound += 1,
+             playerGuesses: [],
+             lastPadPressUTC: Date.now(),
+           })
+         }
+       } else if (playerGuesses[checkIndex] === correctSequence[checkIndex]) { // if guess matches the sequence played, but not the end of the sequence played
+         // console.log(correctSequence, correctSequence[checkIndex], playerGuesses, playerGuesses[checkIndex], checkIndex, currentRound)
+         if (playerGuesses.length > longestSequence.length) { // check for longest sequence for last button here
+           this.startRazzTimer()
+           return this.setState({
+             checkIndex: checkIndex += 1,
+             lastPadPressUTC: Date.now(),
+             longestSequence: playerGuesses,
+           })
+         } else {
+           this.startRazzTimer()
+           return this.setState({
+             checkIndex: checkIndex += 1,
+             lastPadPressUTC: Date.now(),
+           })
+         }
+       }
+     } else { // end gameOn && !gameOver if/else
+       return
+     }
+   } // end passOrFail
 
   playLongestSequence(longestSequence) {
     const gameOn = this.state.gameOn
@@ -642,56 +637,61 @@ class Simon extends React.Component {
     }
   } // end componentDidUpdate
 
-  // touchHandler(event) {
-  //   const color = event.target.id
-  //
-  //   console.log('touchHandler')
-  //
-  //   if (event.type === 'touchstart' && !this.state.oscillator) {
-  //     return this.handleTouchStart(color)
-  //   } else if (event.type === 'touchend' && !this.state.oscillator) {
-  //     return this.handleTouchEnd(color)
+  // touchOrMouseHandler(event) {
+  //   const thisEvent = event.type
+  //   // const touchEvent = event.type === 'touchstart' || event.type === 'touchend'
+  //   // const mouseEvent = event.type === 'mousedown' || event.type === 'mouseup'
+  //   const color = event.type.id
+  //   console.log(thisEvent)
+  //   if (thisEvent === 'touchstart') {
+  //     // this.handleTouchStart(color)
   //   }
-  // }
-  //
-  // mouseHandler(event) {
-  //   const color = event.target.id
-  //
-  //   console.log('mouseHandler')
-  //
-  //   if (event.type === 'mousedown' && !this.state.oscillator) {
-  //     return this.handleMouseDown(color)
-  //   } else if (event.type === 'mouseup' && !this.state.oscillator) {
-  //     return this.handleMouseUp(color)
-  //   }
-  // }
-  //
-  // handleMouseDown(color) {
-  //   // console.log('handleMouseDown working',color)
-  //   this.togglePad(color)
-  //   return this.handlePlayerGuesses(color)
-  // }
-  //
-  // handleMouseUp(color) {
-  //   // console.log('handleMouseUp working', color)
-  //   this.stopSound()
-  //   this.togglePad(color)
-  //   return this.passOrFail(color)
   // }
 
-  handleTouchStart(event) {
-    console.log(this.state.padDisplayLength)
+  handleMouseDown(event) {
+    const color = event.target.id
     const gameStarted = this.state.padSequence.length > 0
 
     if (gameStarted && !this.state.oscillator) { // check if oscillator is !null to prevent multiple presses
-      const color = event.target.id
+      this.togglePad(color)
+      return this.handlePlayerGuesses(color)
+    }
+  } // end handleMouseDown
 
+  handleMouseUp(event) {
+    const color = event.target.id
+    // console.log(this.state[color])
+    const gameStarted = this.state.padSequence.length > 0
+    const onePadActive = this.state[color].status === "active"
+
+    if (gameStarted && this.state.oscillator && onePadActive) { // check for oscillator to prevent errors with razzPlayingFreq due to null value in this.state -- these checks will also prevent users from holding down the mouse during playback and causing a lighted pad when they start to play
+      const currentFreq = this.state.oscillator.frequency.value
+
+      // console.log(this.state.oscillator.frequency.value)
+
+      if (currentFreq !== 42) { // if not playing razz sound
+        this.stopSound()
+        this.togglePad(color)
+        return this.passOrFail(color)
+      } else {
+        return
+      }
+    } // end if oscillator check
+  } // end handleMouseUp
+
+  handleTouchStart(event) {
+    event.preventDefault() // prevents mobile browser and dev tools from firing both touchstart and mousedown
+    const color = event.target.id
+    const gameStarted = this.state.padSequence.length > 0
+
+    if (gameStarted && !this.state.oscillator) { // check if oscillator is !null to prevent multiple presses
       this.togglePad(color)
       return this.handlePlayerGuesses(color)
     }
   } // end handleTouchStart
 
   handleTouchEnd(event) {
+    event.preventDefault() // prevents mobile browser and dev tools from firing both touchend and mouseup
     const color = event.target.id
     // console.log(this.state[color])
     const gameStarted = this.state.padSequence.length > 0
@@ -717,10 +717,10 @@ class Simon extends React.Component {
       <div className="content">
         <div className="app">
           <div className="pads">
-            <div className={`pad red ${this.state.red.status} ${this.disablePadsToggle(this.state.disabled)}`} id="red" onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
-            <div className={`pad blue ${this.state.blue.status} ${this.disablePadsToggle(this.state.disabled)}`} id="blue" onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
-            <div className={`pad green ${this.state.green.status} ${this.disablePadsToggle(this.state.disabled)}`} id="green" onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
-            <div className={`pad yellow ${this.state.yellow.status} ${this.disablePadsToggle(this.state.disabled)}`} id="yellow" onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
+            <div className={`pad red ${this.state.red.status} ${this.disablePadsToggle(this.state.disabled)}`} id="red" onMouseDown={(event) => this.handleMouseDown(event)} onMouseUp={(event) => this.handleMouseUp(event)} onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
+            <div className={`pad blue ${this.state.blue.status} ${this.disablePadsToggle(this.state.disabled)}`} id="blue" onMouseDown={(event) => this.handleMouseDown(event)} onMouseUp={(event) => this.handleMouseUp(event)} onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
+            <div className={`pad green ${this.state.green.status} ${this.disablePadsToggle(this.state.disabled)}`} id="green" onMouseDown={(event) => this.handleMouseDown(event)} onMouseUp={(event) => this.handleMouseUp(event)} onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
+            <div className={`pad yellow ${this.state.yellow.status} ${this.disablePadsToggle(this.state.disabled)}`} id="yellow" onMouseDown={(event) => this.handleMouseDown(event)} onMouseUp={(event) => this.handleMouseUp(event)} onTouchStart={(event) => this.handleTouchStart(event)} onTouchEnd={(event) => this.handleTouchEnd(event)}></div>
             <div className="center"></div>
           </div>
           {/* end pads */}
