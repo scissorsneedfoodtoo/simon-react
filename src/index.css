@@ -431,6 +431,7 @@ input[type='range']::-ms-track {
   .button {
     height: 19px;
     width: 19px;
+    box-shadow: 0 0 0 6.3px #141823;
   }
 
   .toggle-on-off-strict,
@@ -511,6 +512,7 @@ input[type='range']::-ms-track {
   .button {
     height: 22.5px;
     width: 22.5px;
+    box-shadow: 0 0 0 7.5px #141823;
   }
 
   .toggle-switches {
