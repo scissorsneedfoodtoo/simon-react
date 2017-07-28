@@ -547,7 +547,7 @@ class Simon extends React.Component {
 
   victoryTune() {
     const pads = ["red", "yellow", "blue", "green", "red", "yellow", "blue", "green", "red", "yellow", "blue", "green"] // x3
-    const padDisplayLength = 100
+    const padDisplayLength = 110 // originally 100
 
     return this.playPadSequence(pads, padDisplayLength)
   }

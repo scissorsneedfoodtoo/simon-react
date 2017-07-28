@@ -15,7 +15,6 @@ body {
 
 h1 {
   font-family: 'Corben', sans-serif;
-  font-size: 1.3em;
 }
 
 .simon {
@@ -269,24 +268,24 @@ h1 {
 
 .on-off-strict-label {
   /*margin-left: 16px;*/
-  margin: 0 0 0 7.5%;
+  margin: 0 0 0 5.5%;
   position: absolute;
 }
 
 .on-off-strict-label p {
   /*margin: 0 8px 0 0;*/
-  margin: 0px 11% 0 0;
+  margin: 0 11% 0 0;
 }
 
 .skill-level-label {
   /*margin-right: 20px;*/
-  margin: 0 0 0 56.5%;
+  margin: 0 0 0 56%;
   position: absolute;
 }
 
 .skill-level-label p {
   /*margin: 0 0 0 8.5px;*/
-  margin: 0 0 0 42%;
+  margin: 0 0 0 36%;
 }
 
 .switch-type-labels {
@@ -306,7 +305,7 @@ h1 {
 
 .skill-type-label {
   /*margin: 0 6px 0 10px;*/
-  margin: 0 5% 0 59%;
+  margin: 0 0 0 57.5%;
   position: absolute;
 }
 
@@ -401,3 +400,290 @@ input[type='range']::-ms-track {
 .enabled {
   pointer-events: auto;
 }
+
+@media (min-width: 410px) {
+
+  .app {
+    width: 380px;
+    height: 614px;
+  }
+
+  .center {
+    box-shadow: 0 0 0 19px #141823;
+  }
+
+  .controls {
+    margin-top: -80%;
+  }
+
+  .controls-background {
+    border-top: 323px solid #141823;
+  	border-left: 13px solid transparent;
+  	border-right: 13px solid transparent;
+  }
+
+  .controls-silver-background {
+    border-top: 266px solid #b1b5be;
+    border-left: 13px solid transparent;
+    border-right: 13px solid transparent;
+  }
+
+  .button {
+    height: 19px;
+    width: 19px;
+  }
+
+  .toggle-on-off-strict,
+  .toggle-skill-level {
+    width: 63.3px;
+  }
+
+  .button-labels,
+  .switch-type-labels {
+    font-size: .82em;
+  }
+
+  .switch-value-labels {
+    font-size: .73em;
+    margin: -3% 0 0 0;
+  }
+
+  .switch-type-labels {
+    margin: 5% 0 0 0;
+  }
+
+  .game-name {
+    margin-top: -26%;
+    line-height: 1.7em;
+  }
+
+  .pocket-title {
+    font-size: 1.5em;
+  }
+
+  .simon-title {
+    font-size: 2.1em;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    height: 17.7px;
+    width: 20.2px;
+  }
+
+  input[type='range']::-moz-range-thumb {
+    height: 17.7px;
+    width: 20.2px;
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    height: 17.7px;
+  }
+
+}
+
+@media (min-width: 700px) {
+
+  .app {
+    width: 450px;
+    height: 727.5px;
+  }
+
+  .center {
+    box-shadow: 0 0 0 22.5px #141823;
+  }
+
+  .controls {
+    margin-top: -80%;
+  }
+
+  .controls-background {
+    border-top: 382.5px solid #141823;
+  	border-left: 15px solid transparent;
+  	border-right: 15px solid transparent;
+  }
+
+  .controls-silver-background {
+    border-top: 315px solid #b1b5be;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+  }
+
+  .button {
+    height: 22.5px;
+    width: 22.5px;
+  }
+
+  .toggle-switches {
+    margin: 12.5% 0 0 0;
+    width: 100%;
+  }
+
+  .on-off-strict-label {
+    margin: 0 0 0 7%;
+  }
+
+  .skill-level-label {
+    margin: 0 0 0 56.3%;
+  }
+
+  .on-off-strict-label p {
+    margin: 0 7.5% 0 0;
+  }
+
+  .skill-level-label p {
+    margin: 0 0 0 35%;
+  }
+
+  .skill-type-label {
+    margin: 0 5% 0 57%;
+  }
+
+  .toggle-on-off-strict,
+  .toggle-skill-level {
+    width: 85px;
+  }
+
+  .button-labels,
+  .switch-type-labels {
+    font-size: .975em;
+  }
+
+  .switch-value-labels {
+    font-size: .87em;
+    margin: -1% 0 0 0;
+  }
+
+  .switch-type-labels {
+    margin: 6.5% 0 0 0;
+  }
+
+  .game-name {
+    margin-top: -27.5%;
+    line-height: 2.1em;
+  }
+
+  .pocket-title {
+    font-size: 1.75em;
+  }
+
+  .simon-title {
+    font-size: 2.5em;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    height: 17.7px;
+    width: 20.2px;
+  }
+
+  input[type='range']::-moz-range-thumb {
+    height: 17.7px;
+    width: 20.2px;
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    height: 17.7px;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    height: 21px;
+    width: 24px;
+  }
+
+  input[type='range']::-moz-range-thumb {
+    height: 21px;
+    width: 24px;
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    height: 21px;
+  }
+
+}
+
+/*@media (min-width: 1000px) {
+
+  .app {
+    width: 600px;
+    height: 970px;
+  }
+
+  .center {
+    box-shadow: 0 0 0 30px #141823;
+  }
+
+  .controls-background {
+    border-top: 510px solid #141823;
+  	border-left: 20px solid transparent;
+  	border-right: 20px solid transparent;
+  }
+
+  .controls-silver-background {
+    border-top: 420px solid #b1b5be;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+  }
+
+  .button {
+    height: 30px;
+    width: 30px;
+  }
+
+  .toggle-switches {
+    margin: 14% 0 0 0;
+    width: 100%;
+  }
+
+  .toggle-on-off-strict,
+  .toggle-skill-level {
+    width: 100%;
+  }
+
+  .button-labels,
+  .switch-type-labels {
+    font-size: 1.3em;
+  }
+
+  .switch-value-labels {
+    font-size: 1.16em;
+    margin: 2% 0 0 0;
+  }
+
+  .switch-type-labels {
+    font-size: 1.3em;
+    margin: 6.5% 0 0 0;
+  }
+
+  .game-name {
+    margin-top: -27%;
+    line-height: 2.8em;
+  }
+
+  .pocket-title {
+    font-size: 2.3em;
+  }
+
+  .simon-title {
+    font-size: 3.2em;
+  }
+
+  input[type='range'] {
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    height: 28px;
+    width: 32px;
+  }
+
+  input[type='range']::-moz-range-thumb {
+    height: 28px;
+    width: 32px;
+  }
+
+  input[type='range']::-webkit-slider-runnable-track {
+    height: 28px;
+  }
+
+}*/
