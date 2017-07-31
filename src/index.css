@@ -267,25 +267,24 @@ h1 {
 }
 
 .on-off-strict-label {
-  /*margin-left: 16px;*/
-  margin: 0 0 0 5.5%;
+  margin: 0 0 0 7%;
   position: absolute;
 }
 
 .on-off-strict-label p {
   /*margin: 0 8px 0 0;*/
-  margin: 0 11% 0 0;
+  margin: 0 12% 0 0;
 }
 
 .skill-level-label {
   /*margin-right: 20px;*/
-  margin: 0 0 0 56%;
+  margin: 0 0 0 57%;
   position: absolute;
 }
 
 .skill-level-label p {
   /*margin: 0 0 0 8.5px;*/
-  margin: 0 0 0 36%;
+  margin: 0 0 0 40%;
 }
 
 .switch-type-labels {
@@ -525,15 +524,15 @@ input[type='range']::-ms-track {
   }
 
   .skill-level-label {
-    margin: 0 0 0 56.3%;
+    margin: 0 0 0 57%;
   }
 
   .on-off-strict-label p {
-    margin: 0 7.5% 0 0;
+    margin: 0 12% 0 0;
   }
 
   .skill-level-label p {
-    margin: 0 0 0 35%;
+    margin: 0 0 0 40%;
   }
 
   .skill-type-label {
@@ -601,91 +600,3 @@ input[type='range']::-ms-track {
   }
 
 }
-
-/*@media (min-width: 1000px) {
-
-  .app {
-    width: 600px;
-    height: 970px;
-  }
-
-  .center {
-    box-shadow: 0 0 0 30px #141823;
-  }
-
-  .controls-background {
-    border-top: 510px solid #141823;
-  	border-left: 20px solid transparent;
-  	border-right: 20px solid transparent;
-  }
-
-  .controls-silver-background {
-    border-top: 420px solid #b1b5be;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-  }
-
-  .button {
-    height: 30px;
-    width: 30px;
-  }
-
-  .toggle-switches {
-    margin: 14% 0 0 0;
-    width: 100%;
-  }
-
-  .toggle-on-off-strict,
-  .toggle-skill-level {
-    width: 100%;
-  }
-
-  .button-labels,
-  .switch-type-labels {
-    font-size: 1.3em;
-  }
-
-  .switch-value-labels {
-    font-size: 1.16em;
-    margin: 2% 0 0 0;
-  }
-
-  .switch-type-labels {
-    font-size: 1.3em;
-    margin: 6.5% 0 0 0;
-  }
-
-  .game-name {
-    margin-top: -27%;
-    line-height: 2.8em;
-  }
-
-  .pocket-title {
-    font-size: 2.3em;
-  }
-
-  .simon-title {
-    font-size: 3.2em;
-  }
-
-  input[type='range'] {
-    -webkit-appearance: none;
-    width: 100%;
-    background: transparent;
-  }
-
-  input[type='range']::-webkit-slider-thumb {
-    height: 28px;
-    width: 32px;
-  }
-
-  input[type='range']::-moz-range-thumb {
-    height: 28px;
-    width: 32px;
-  }
-
-  input[type='range']::-webkit-slider-runnable-track {
-    height: 28px;
-  }
-
-}*/
