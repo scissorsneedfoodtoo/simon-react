@@ -74,7 +74,8 @@ class Simon extends React.Component {
       let oscillator = this.state.oscillator
       let volume = audioContext.createGain()
       volume.connect(audioContext.destination)
-      volume.gain.value = .06
+      // set volume to 20%
+      volume.gain.value = 0.2
 
       oscillator = audioContext.createOscillator()
       oscillator.type = 'square'
